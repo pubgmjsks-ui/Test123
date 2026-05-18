@@ -1,39 +1,26 @@
-name: Build Fabric JAR
+- name: Build (strict)
+  run: |
+    set -e
+    gradle --version
+    gradle tasks --all --no-daemon
+    gradle build --stacktrace --no-daemon
+    gradle remapJar --stacktrace --no-daemon
 
-on:
-  workflow_dispatch:
-  push:
-    branches: ["main"]
+- name: Print tree
+  if: always()
+  run: |
+    echo "=== ROOT ==="
+    ls -la
+    echo "=== FIND BUILD.GRADLE ==="
+    find . -maxdepth 4 -name "build.gradle" -o -name "settings.gradle" -o -name "fabric.mod.json"
+    echo "=== FIND JARS ==="
+    find . -type f -name "*.jar" | sort
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: "17"
-
-      - uses: gradle/actions/setup-gradle@v4
-
-      - name: Build
-        run: |
-          gradle tasks --no-daemon
-          gradle build remapJar --no-daemon || gradle build --no-daemon
-
-      - name: Find jars
-        run: find . -type f -name "*.jar" | sort
-
-      - name: Upload JAR
-        uses: actions/upload-artifact@v4
-        with:
-          name: yakusha-client-jar
-          path: |
-            **/build/libs/*.jar
-            **/build/libs/*-all.jar
-          if-no-files-found: error
+- name: Upload JAR
+  uses: actions/upload-artifact@v4
+  with:
+    name: yakusha-client-jar
+    path: |
+      **/build/libs/*.jar
+      **/build/libs/*-all.jar
+    if-no-files-found: error
