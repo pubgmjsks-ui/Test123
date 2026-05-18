@@ -15,21 +15,27 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up JDK 17
+      - name: Setup Java 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: "17"
 
-      - name: Set up Gradle
+      - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Build
+      - name: Debug project tree
+        run: |
+          pwd
+          ls -la
+          find . -maxdepth 4 -type f \( -name "build.gradle" -o -name "settings.gradle" -o -name "fabric.mod.json" \) | sort
+
+      - name: Build attempt
         run: |
           gradle --version
-          gradle tasks --no-daemon
-          gradle build --no-daemon || true
-          gradle remapJar --no-daemon || true
+          gradle tasks --all --no-daemon
+          gradle build --stacktrace --no-daemon || true
+          gradle remapJar --stacktrace --no-daemon || true
 
       - name: Find jars
         run: |
@@ -40,6 +46,5 @@ jobs:
         with:
           name: yakusha-client-jar
           path: |
-            **/build/libs/*.jar
-            **/build/libs/*-all.jar
+            **/*.jar
           if-no-files-found: error
