@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "id": "yakushaclient",
+  "version": "1.0.0",
+  "name": "Yakusha Client",
+  "environment": "client",
+  "entrypoints": {
+    "client": ["com.yakusha.client.YakushaMod"]
+  },
+  "depends": {
+    "fabric": "*",
+    "minecraft": "1.16.5"
+  }
+}
